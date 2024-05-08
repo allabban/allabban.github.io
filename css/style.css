@@ -150,4 +150,24 @@
     display: block !important;
   }
 
+  .contact-form{
+    opacity: 0;
+    transition: opacity 1s;
+  }
+  .contact-form.show{
+    opacity: 1;
+  }
+  .first-name{
+    opacity: 0;
+    transition: opacity 1s;
+  }
+  .first-name.show{
+    opacity: 1;
+  }
+  
+
+
+
+
+  
  
