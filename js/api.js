@@ -50,5 +50,33 @@ fetch("https://lichess.org/api/player", requestOptions)
   })
   .catch((error) => console.error(error));
 }
+function accountInfo(){
+  const myHeaders = new Headers();
+myHeaders.append("Authorization", "Bearer lip_uuDC8LTFjzv0cHFqLb94");
+
+const requestOptions = {
+method: "GET",
+headers: myHeaders,
+redirect: "follow"
+};
+
+fetch("https://lichess.org/api/account", requestOptions)
+.then((response) => response.json())
+.then((result) => {
+
+const myusername = result.username;
+const myrate1 = result.perfs.bullet.rating;
+const myrate2 = result.perfs.blitz.rating;
+const myrate3 = result.perfs.rapid.rating;
+const myrate4 = result.perfs.classical.rating;
+document.getElementById(`mynam`).innerHTML = myusername;
+document.getElementById(`mybulrat`).innerHTML = myrate1;
+document.getElementById(`mybltrat`).innerHTML = myrate2;
+document.getElementById(`myraprat`).innerHTML = myrate3;
+document.getElementById(`myclasrat`).innerHTML = myrate4;
+
+})
+.catch((error) => console.error(error));
+}
 
 
