@@ -2,7 +2,7 @@ setTimeout(function() {
     document.querySelector('.contact-form').classList.add('show');
     setTimeout(function() {
         document.querySelector('.first-name').classList.add('show');
-    }, 1000); // Add a delay of 1000ms after the contact form is shown
+    }, 1000); // Add a delay of 1s after the contact form is shown
 }, 1000);
 
 //ok allah razi olsun
@@ -23,5 +23,3 @@ function App() {
     </BrowserRouter>
   );
 }
-
-export default App;
