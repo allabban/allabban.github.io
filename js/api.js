@@ -51,6 +51,8 @@ fetch("https://lichess.org/api/player", requestOptions)
   .catch((error) => console.error(error));
 }
 function accountInfo(){
+  const username = document.getElementById('username').value;
+
   const myHeaders = new Headers();
 myHeaders.append("Authorization", "Bearer lip_uuDC8LTFjzv0cHFqLb94");
 
@@ -60,7 +62,7 @@ headers: myHeaders,
 redirect: "follow"
 };
 
-fetch("https://lichess.org/api/account", requestOptions)
+fetch(`https://lichess.org/api/user/${username}`, requestOptions)
 .then((response) => response.json())
 .then((result) => {
 
@@ -78,5 +80,3 @@ document.getElementById(`myclasrat`).innerHTML = myrate4;
 })
 .catch((error) => console.error(error));
 }
-
-

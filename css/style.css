@@ -165,5 +165,23 @@
     opacity: 1;
   }
 .logincontainer{
-  max-width: 820px;
+  max-width: 920px;
 }
+.footerlogin{
+  margin-top:15%;
+}
+
+
+#username{
+
+
+display: revert;
+
+}
+.unselectable {
+  -webkit-user-select: none; /* Chrome, Safari, Opera */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* Internet Explorer/Edge */
+  user-select: none;         /* Non-prefixed version, currently supported by most browsers */
+}
+
