@@ -1,7 +1,7 @@
 setTimeout(function() {
     document.querySelector('.contact-form').classList.add('show');
     setTimeout(function() {
-        document.querySelector('.first-name').classList.add('show');
+        document.querySelector('.contact-form').classList.add('show');
     }, 1000); // Add a delay of 1s after the contact form is shown
 }, 1000);
 

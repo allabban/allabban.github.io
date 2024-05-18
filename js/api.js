@@ -76,7 +76,6 @@ document.getElementById(`mybulrat`).innerHTML = myrate1;
 document.getElementById(`mybltrat`).innerHTML = myrate2;
 document.getElementById(`myraprat`).innerHTML = myrate3;
 document.getElementById(`myclasrat`).innerHTML = myrate4;
-
 })
 .catch((error) => console.error(error));
 }
