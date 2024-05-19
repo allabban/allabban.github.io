@@ -1,55 +1,48 @@
-import React, { useState } from "react";
-import axios from "axios";
+const { createApp } = Vue;
 
-function MyForm() {
-  const [serverState, setServerState] = useState({
-    submitting: false,
-    status: null
-  });
-  const handleServerResponse = (ok, msg, form) => {
-    setServerState({
-      submitting: false,
-      status: { ok, msg }
-    });
-    if (ok) {
-      form.reset();
-    }
-  };
-  const handleOnSubmit = e => {
-    e.preventDefault();
-    const form = e.target;
-    setServerState({ submitting: true });
-    axios({
-      method: "post",
-      url: "https://formspree.io/YOUR_FORM_ID",
-      data: new FormData(form)
-    })
-      .then(r => {
-        handleServerResponse(true, "Thanks!", form);
-      })
-      .catch(r => {
-        handleServerResponse(false, r.response.data.error, form);
-      });
-  };
-  return (
-    <div>
-      <h1>Contact Us</h1>
-      <form onSubmit={handleOnSubmit}>
-        <label htmlFor="email">Email:</label>
-        <input id="email" type="email" name="email" required />
-        <label htmlFor="message">Message:</label>
-        <textarea id="message" name="message"></textarea>
-        <button type="submit" disabled={serverState.submitting}>
-          Submit
-        </button>
-        {serverState.status && (
-          <p className={!serverState.status.ok ? "errorMsg" : ""}>
-            {serverState.status.msg}
-          </p>
-        )}
-      </form>
-    </div>
-  );
-};
+createApp({
+  data() {
+    return {
+      name: "",
+      email: "",
+      errors: [],
+    };
+  },
+  methods: {
+    checkForm() {
+      this.errors = [];
 
-export default MyForm;
+      if (!this.name) {
+        this.errors.push("Name required.");
+      }
+      if (!this.email) {
+        this.errors.push("Email required.");
+      } else if (!this.validEmail(this.email)) {
+        this.errors.push("Valid email required.");
+      }
+
+      return !this.errors.length;
+    },
+    validEmail(email) {
+      const re =
+        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(email);
+    },
+    handleSubmit(e) {
+      if (this.checkForm()) {
+        // Form is valid, you can submit it or perform any action you need.
+        alert("Form is valid");
+      } else {
+        e.preventDefault();
+      }
+    },
+    handleButtonClick() {
+      if (this.checkForm()) {
+        // Form is valid, you can submit it or perform any action you need.
+        alert("Form is valid");
+      } else {
+        alert("Form is invalid");
+      }
+    },
+  },
+}).mount("#app");

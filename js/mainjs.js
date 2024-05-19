@@ -1,25 +1,26 @@
-setTimeout(function() {
-    document.querySelector('.contact-form').classList.add('show');
-    setTimeout(function() {
-        document.querySelector('.contact-form').classList.add('show');
-    }, 1000); // Add a delay of 1s after the contact form is shown
-}, 1000);
+// Get the modal
+var popup = document.getElementById("popup");
 
-//ok allah razi olsun
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import AnimeItem from "./Components/AnimeItem";
-import Gallery from "./Components/Gallery";
-import Homepage from "./Components/Homepage";
+// Get the image and insert it inside the modal - use its "alt" text as a caption
+var thumbnail = document.getElementById("thumbnail");
+var popupImg = document.getElementById("popup-img");
 
-function App() {
-  
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Homepage />} />
-        <Route path="/anime/:id" element={<AnimeItem />} />
-        <Route path="/character/:id" element={<Gallery />} />
-      </Routes>
-    </BrowserRouter>
-  );
+thumbnail.onclick = function(){
+    popup.style.display = "block";
+    popupImg.src = this.src;
+}
+
+// Get the <span> element that closes the modal
+var close = document.getElementsByClassName("close")[0];
+
+// When the user clicks on <span> (x), close the modal
+close.onclick = function() { 
+    popup.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    if (event.target == popup) {
+        popup.style.display = "none";
+    }
 }
