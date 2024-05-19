@@ -1,31 +1,30 @@
-var form = document.getElementById("my-form");
-async function handleSubmit(event) {
-  event.preventDefault();
-  var status = document.getElementById("my-form-status");
-  var data = new FormData(event.target);
-  fetch(event.target.action, {
-    method: form.method,
-    body: data,
-    headers: { Accept: "application/json" },
-  })
-    .then((response) => {
-      if (response.ok) {
-        status.innerHTML = "Thanks for your submission!";
-        form.reset();
-      } else {
-        response.json().then((data) => {
-          if (Object.hasOwn(data, "errors")) {
-            status.innerHTML = data["errors"]
-              .map((error) => error["message"])
-              .join(", ");
-          } else {
-            status.innerHTML = "Oops! There was a problem submitting your form";
-          }
-        });
-      }
-    })
-    .catch((error) => {
-      status.innerHTML = "Oops! There was a problem submitting your form";
-    });
+function ValidateEmail(inputText) {
+  var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  if(inputText.value.match(mailformat)) {
+    return true;
+  } else {
+    alert("You have entered an invalid email address(javascript)!");
+    return false;
+  }
 }
-form.addEventListener("submit", handleSubmit);
+function required() {
+  var empt = document.form.name.value;
+  if (empt === "") {
+    alert("Please input a Value(javascript)");
+    return false;
+  } else {
+    return true;
+  }
+}
+function validateForm() {
+  var emailValid = ValidateEmail(document.form1.email);
+  var requiredValid = required();
+  return emailValid && requiredValid;
+}
+function handleClick() {
+  var emailValid = ValidateEmail(document.form.email);
+  var requiredValid = required();
+  if (emailValid && requiredValid) {
+    document.form.submit();
+  }
+}
