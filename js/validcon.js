@@ -17,7 +17,7 @@ function required() {
   }
 }
 function validateForm() {
-  var emailValid = ValidateEmail(document.form1.email);
+  var emailValid = ValidateEmail(document.form.email);
   var requiredValid = required();
   return emailValid && requiredValid;
 }
