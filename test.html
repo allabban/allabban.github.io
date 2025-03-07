@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اختبار سرعة الكتابة - التطبيق المتكامل</title>
+  <!-- استيراد خط "Cairo" من Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600&display=swap" rel="stylesheet">
+  <!-- استيراد Font Awesome للأيقونات -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* إعادة تعيين القيم الأساسية */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #04241e, #ACB6E5);
+      color: #333;
+      line-height: 1.6;
+      text-align: center;
+      padding: 20px;
+      direction: rtl;
+    }
+    header {
+      background-color: rgba(0, 150, 290, 0.9);
+      color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    header p {
+      font-size: 1.1rem;
+    }
+    .container {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 600px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+    }
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background: linear-gradient(135deg, #6e8efb, #a777e3);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #a777e3, #6e8efb);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    button::after {
+      content: '';
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+    @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+    }
+    .hidden {
+      display: none;
+    }
+    .timer {
+      font-size: 2rem;
+      font-weight: bold;
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: #333;
+      transition: all 0.3s ease;
+    }
+    .timer.warning {
+      color: #e63946;
+      font-size: 3rem;
+    }
+    #originalText {
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+      line-height: 1.5;
+    }
+    /* تعليمات للمستخدم عند البدء */
+    #instruction {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      color: #555;
+    }
+    .faded {
+      color: rgba(0, 0, 0, 0.5);
+    }
+    .cursor {
+      border: 1px solid #000;
+      padding: 2px;
+    }
+    .wrong {
+      color: #e63946;
+    }
+    .text-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    .text-item:last-child {
+      border-bottom: none;
+    }
+    .text-item button {
+      width: auto;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      margin-left: 5px;
+    }
+    #searchText {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    #resultPanel, #resultPanelRace {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    #resultPanel.show, #resultPanelRace.show {
+      opacity: 1;
+      pointer-events: auto;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    #resultContent, #resultContentRace {
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    #resultContent h2, #resultContentRace h2 {
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+    #resultContent p, #resultContentRace p {
+      margin: 10px 0;
+      font-size: 1.1rem;
+    }
+    @keyframes float {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(100%); }
+    }
+    .floating-word {
+      position: absolute;
+      font-size: 0.75rem;
+      animation: float 5s linear, wave 2s infinite;
+    }
+    @keyframes wave {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(20px); }
+    }
+    #floatingMode {
+      position: relative;
+      overflow: hidden;
+      height: 450px;
+    }
+    #floatingArea {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 50px;
+    }
+    #floatingInput {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      padding: 10px;
+      font-size: 1.2rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      text-align: center;
+    }
+    #stageMessage {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      display: none;
+      z-index: 10;
+    }
+    #lifeBar {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 1.2rem;
+      z-index: 5;
+    }
+    #progressBar {
+      width: 100%;
+      height: 10px;
+      background: #eee;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+    #progress {
+      height: 100%;
+      background: linear-gradient(135deg, #6e8efb, #a777e3);
+      width: 0%;
+      transition: width 0.3s;
+    }
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.5rem;
+      }
+      .container {
+        margin: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>تدريب الكتابة المتكامل</h1>
+    <p>اختبر سرعتك ودقتك واستمتع بأنماط لعب متعددة</p>
+  </header>
+
+  <!-- القائمة الرئيسية -->
+  <div class="container" id="mainMenu">
+    <button onclick="showDurationOptions()"><i class="fas fa-play"></i> بدء الاختبار</button>
+    <button onclick="showFloatingMode()"><i class="fas fa-gamepad"></i> سباق الكلمات</button>
+    <button onclick="showTextManagement()"><i class="fas fa-book"></i> إدارة النصوص</button>
+    <button onclick="exitApp()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+  </div>
+
+  <!-- قائمة اختيار المدة لاختبار الكتابة -->
+  <div class="container hidden" id="durationMenu">
+    <button onclick="selectDuration(1)">1 دقيقة</button>
+    <button onclick="selectDuration(3)">3 دقائق</button>
+    <button onclick="selectDuration(5)">5 دقائق</button>
+    <button onclick="backToMainMenu()">عودة</button>
+  </div>
+
+  <!-- واجهة اختبار الكتابة -->
+  <div class="container hidden" id="typingTest" style="position: relative;">
+    <div class="timer" id="timer" style="width:15%; height:40px; padding:10px; position: absolute; top:-7px; left: 400px;">00:00</div>
+    <button onclick="backToMainMenu()" style="width:15%; height:40px; padding:10px; position: absolute; top:-7px; left: 5px;"><i class="fas fa-arrow-right"></i> عودة</button>
+    <button onclick="changeTextRandomly()" style="width:15%; height:40px; padding:10px; position: absolute; top:-7px; left: 100px;"><i class="fas fa-sync-alt"></i> تغيير النص</button>
+    <p>النص الأصلي:</p>
+    <div id="originalText"></div>
+    <p id="instruction">ابدأ الكتابة مباشرة باستخدام لوحة المفاتيح</p>
+  </div>
+
+  <!-- إدارة النصوص -->
+  <div class="container hidden" id="textManagement">
+    <button onclick="backToMainMenu()" style="width:15%; height:40px; padding:10px; position: absolute; top:0; left: 10px;"><i class="fas fa-arrow-right"></i> عودة</button>
+    <h2>إدارة النصوص</h2>
+    <input type="text" id="searchText" placeholder="ابحث في النصوص..." oninput="filterTexts()">
+    <textarea id="newText" placeholder="أضف نصًا جديدًا هنا..." style="width:100%; height:80px; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;"></textarea>
+    <button onclick="addText()"><i class="fas fa-plus"></i> إضافة النص</button>
+    <button onclick="previewText()"><i class="fas fa-eye"></i> معاينة</button>
+    <div id="textList"></div>
+  </div>
+
+  <!-- لوحة نتائج اختبار الكتابة -->
+  <div id="resultPanel">
+    <div id="resultContent">
+      <h2>نتائج الاختبار</h2>
+      <p id="resultTime"></p>
+      <p id="resultWPM"></p>
+      <p id="resultAccuracy"></p>
+      <p id="resultErrors"></p>
+      <button onclick="restartTest()"><i class="fas fa-redo"></i> إعادة الاختبار</button>
+      <button onclick="backToMainMenu()"><i class="fas fa-home"></i> العودة للقائمة الرئيسية</button>
+    </div>
+  </div>
+
+  <!-- لوحة نتائج وضع سباق الكلمات -->
+  <div id="resultPanelRace">
+    <div id="resultContentRace">
+      <h2>نتائج سباق الكلمات</h2>
+      <p id="resultRaceStage"></p>
+      <p id="resultRaceMistakes"></p>
+      <button onclick="restartFloatingMode()"><i class="fas fa-redo"></i> إعادة الاختبار</button>
+      <button onclick="backToMainMenu()"><i class="fas fa-home"></i> العودة للقائمة الرئيسية</button>
+    </div>
+  </div>
+
+  <!-- واجهة سباق الكلمات -->
+  <div class="container hidden" id="floatingMode" style="width:90%; height:550px; position: relative;">
+    <button onclick="backToMainMenu()" style="width:15%; height:40px; padding:10px; position: absolute; top:0; left: 10px;"><i class="fas fa-arrow-right"></i> عودة</button>
+    <div id="lifeBar" style="height:40px; padding:10px; position: absolute; top:40px; left: 5px;">❤️❤️❤️</div>
+    <div id="stageMessage"></div>
+    <h2>سباق الكلمات - المراحل</h2>
+    <div id="floatingArea" style="width:100%; height:470px; position: absolute; top:80px; left: 0;"></div>
+    <input type="text" id="floatingInput" placeholder="اكتب الكلمة هنا...">
+    <div id="progressBar">
+      <div id="progress"></div>
+    </div>
+  </div>
+
+  <script>
+    /***************** الوضع الأساسي (اختبار الكتابة وإدارة النصوص) *****************/
+    let texts = JSON.parse(localStorage.getItem('texts')) || [
+      "البرمجة هي عملية كتابة تعليمات تفصيلية تتيح للحواسيب\nتنفيذ المهام المطلوبة بدقة وكفاءة. تعد هذه المهارة من أهم\nالأدوات الحديثة التي تقود التطور التكنولوجي، حيث تدخل\nفي مجالات متعددة مثل تطوير التطبيقات، الذكاء الاصطناعي،\nوأمن المعلومات."
+    ];
+    let currentText = "";
+    let duration = 0;
+    let timeLeft = 0;
+    let intervalId;
+    let timerStarted = false;
+    let testStarted = false;
+    let startTime;
+    let userInput = "";
+
+    function saveTexts() {
+      localStorage.setItem('texts', JSON.stringify(texts));
+    }
+
+    function showDurationOptions() {
+      hideAll();
+      document.getElementById('durationMenu').classList.remove('hidden');
+    }
+
+    function showTextManagement() {
+      hideAll();
+      document.getElementById('textManagement').classList.remove('hidden');
+      updateTextList();
+    }
+
+    function backToMainMenu() {
+      hideAll();
+      document.getElementById('mainMenu').classList.remove('hidden');
+      clearInterval(intervalId);
+      timerStarted = false;
+      testStarted = false;
+      document.removeEventListener('keydown', handleKeydown);
+      cancelAnimationFrame(stageAnimationFrameId);
+    }
+
+    function hideAll() {
+      document.getElementById('mainMenu').classList.add('hidden');
+      document.getElementById('durationMenu').classList.add('hidden');
+      document.getElementById('typingTest').classList.add('hidden');
+      document.getElementById('textManagement').classList.add('hidden');
+      document.getElementById('floatingMode').classList.add('hidden');
+      document.getElementById('resultPanel').classList.remove('show');
+      document.getElementById('resultPanelRace').classList.remove('show');
+    }
+
+    function selectDuration(minutes) {
+      duration = minutes * 60;
+      timeLeft = duration;
+      updateTimerDisplay();
+      startTypingTest();
+    }
+
+    function startTypingTest() {
+      hideAll();
+      document.getElementById('typingTest').classList.remove('hidden');
+      userInput = "";
+      currentText = texts[Math.floor(Math.random() * texts.length)];
+      document.getElementById('originalText').innerText = currentText;
+      resetHighlights();
+      timerStarted = false;
+      testStarted = true;
+      startTime = null;
+      document.addEventListener('keydown', handleKeydown);
+      document.body.focus();
+    }
+
+    function resetHighlights() {
+      document.getElementById('originalText').innerHTML = currentText;
+    }
+
+    function handleKeydown(event) {
+      if (!testStarted) return;
+      if (["Shift", "Control", "Alt", "Meta"].includes(event.key)) return;
+      if (!timerStarted) {
+        timerStarted = true;
+        startTime = new Date();
+        startTimer();
+      }
+      if (event.key === "Backspace") {
+        userInput = userInput.slice(0, -1);
+        event.preventDefault();
+      } else if (event.key.length === 1) {
+        userInput += event.key;
+      }
+      checkTyping();
+    }
+
+    function startTimer() {
+      clearInterval(intervalId);
+      intervalId = setInterval(() => {
+        if (timeLeft <= 0) {
+          clearInterval(intervalId);
+          endTest();
+        } else {
+          timeLeft--;
+          updateTimerDisplay();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      let minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+      let seconds = String(timeLeft % 60).padStart(2, '0');
+      let timerElement = document.getElementById('timer');
+      timerElement.textContent = `${minutes}:${seconds}`;
+      if (timeLeft <= 10) {
+        timerElement.classList.add('warning');
+      } else {
+        timerElement.classList.remove('warning');
+      }
+    }
+
+    function checkTyping() {
+      let originalChars = currentText.split('');
+      let userChars = userInput.split('');
+      let highlightedText = '';
+      let errors = 0;
+      for (let i = 0; i < originalChars.length; i++) {
+        if (i < userChars.length) {
+          if (userChars[i] === originalChars[i]) {
+            highlightedText += `<span class="faded">${originalChars[i]}</span>`;
+          } else {
+            highlightedText += `<span class="wrong">${originalChars[i]}</span>`;
+            errors++;
+          }
+        } else if (i === userChars.length) {
+          highlightedText += `<span class="cursor">${originalChars[i]}</span>`;
+        } else {
+          highlightedText += originalChars[i];
+        }
+      }
+      document.getElementById('originalText').innerHTML = highlightedText;
+      if (userInput === currentText) {
+        clearInterval(intervalId);
+        endTest(errors);
+      }
+    }
+
+    function endTest(errors = 0) {
+      testStarted = false;
+      document.removeEventListener('keydown', handleKeydown);
+      let endTime = new Date();
+      let timeTaken = ((duration - timeLeft) > 0) ? (endTime - startTime) / 1000 : duration;
+      let totalChars = userInput.length;
+      let wpm = (timeTaken > 0) ? ((totalChars / 5) / (timeTaken / 60)).toFixed(2) : 0;
+      let correctCount = userInput.split('').filter((char, index) => char === currentText[index]).length;
+      let accuracy = (totalChars > 0) ? ((correctCount / totalChars) * 100).toFixed(2) : 0;
+      document.getElementById('resultTime').innerText = `الوقت المستخدم: ${timeTaken.toFixed(2)} ثانية`;
+      document.getElementById('resultWPM').innerText = `السرعة (كلمة/دقيقة): ${wpm}`;
+      document.getElementById('resultAccuracy').innerText = `الدقة: ${accuracy}%`;
+      document.getElementById('resultErrors').innerText = `عدد الأخطاء: ${errors}`;
+      document.getElementById('resultPanel').classList.add('show');
+    }
+
+    function restartTest() {
+      document.getElementById('resultPanel').classList.remove('show');
+      timeLeft = duration;
+      updateTimerDisplay();
+      userInput = "";
+      resetHighlights();
+      timerStarted = false;
+      testStarted = true;
+      startTime = null;
+      clearInterval(intervalId);
+      document.addEventListener('keydown', handleKeydown);
+    }
+
+    function updateTextList() {
+      let textListDiv = document.getElementById('textList');
+      textListDiv.innerHTML = "";
+      texts.forEach((text, index) => {
+        let div = document.createElement('div');
+        div.className = "text-item";
+        div.innerHTML = `
+          <span>نص ${index + 1}: ${text.substring(0, 50)}...</span>
+          <div>
+            <button onclick="editText(${index})"><i class="fas fa-edit"></i> تعديل</button>
+            <button onclick="deleteText(${index})"><i class="fas fa-trash"></i> حذف</button>
+          </div>
+        `;
+        textListDiv.appendChild(div);
+      });
+    }
+
+    function addText() {
+      let newText = document.getElementById('newText').value.trim();
+      if (newText.length < 10) {
+        alert("النص قصير جدًا، أدخل 10 أحرف على الأقل.");
+        return;
+      }
+      texts.push(newText);
+      saveTexts();
+      document.getElementById('newText').value = "";
+      updateTextList();
+    }
+
+    function editText(index) {
+      let newText = prompt("قم بتعديل النص:", texts[index]);
+      if (newText !== null && newText.trim() !== "") {
+        texts[index] = newText.trim();
+        saveTexts();
+        updateTextList();
+      }
+    }
+
+    function deleteText(index) {
+      if (confirm("هل أنت متأكد أنك تريد حذف هذا النص؟")) {
+        texts.splice(index, 1);
+        saveTexts();
+        updateTextList();
+      }
+    }
+
+    function previewText() {
+      let text = document.getElementById('newText').value;
+      alert("معاينة النص:\n" + text);
+    }
+
+    function filterTexts() {
+      let query = document.getElementById('searchText').value.toLowerCase();
+      let textItems = document.querySelectorAll('.text-item');
+      textItems.forEach(item => {
+        let text = item.querySelector('span').innerText.toLowerCase();
+        item.style.display = text.includes(query) ? 'flex' : 'none';
+      });
+    }
+
+    function exitApp() {
+      if (confirm("هل تريد الخروج من التطبيق؟")) {
+        window.close();
+      }
+    }
+
+    function changeTextRandomly() {
+      if (texts.length > 0) {
+        currentText = texts[Math.floor(Math.random() * texts.length)];
+        document.getElementById('originalText').innerText = currentText;
+        resetHighlights();
+        userInput = "";
+        timerStarted = false;
+        testStarted = true;
+        startTime = null;
+        updateTimerDisplay();
+      }
+    }
+
+    /***************** وضع سباق الكلمات (الكلمات العائمة) *****************/
+    let easyWords = ["هو", "في", "من", "لا", "ما"];
+    let threeLetterWords = ["باب", "بيت", "أمل", "نور"];
+    let fourLetterWords = ["سماء", "زهر", "سحر", "حلم"];
+    let usedWords = [];
+    let stage = 1;
+    let mistakes = 0;
+    const allowedMistakes = 3;
+    let activeStageWords = [];
+    let stageAnimationFrameId;
+    let stageActive = false;
+    let lastTimestamp = 0;
+    const baseSpeed = 40;
+    const speedIncrement = 8;
+
+    function showFloatingMode() {
+      hideAll();
+      document.getElementById('floatingMode').classList.remove('hidden');
+      document.getElementById('floatingInput').focus();
+      stage = 1;
+      mistakes = 0;
+      usedWords = [];
+      activeStageWords = [];
+      stageActive = false;
+      updateLifeBar();
+      startStage();
+    }
+
+    function updateLifeBar() {
+      let lifeBar = document.getElementById('lifeBar');
+      let livesLeft = allowedMistakes - mistakes;
+      let hearts = "";
+      for (let i = 0; i < livesLeft; i++) {
+        hearts += "❤️";
+      }
+      lifeBar.innerText = hearts;
+    }
+
+    function showStageMessage(msg) {
+      let stageMessageDiv = document.getElementById('stageMessage');
+      stageMessageDiv.innerText = msg;
+      stageMessageDiv.style.display = "block";
+      setTimeout(() => {
+        stageMessageDiv.style.display = "none";
+      }, 2000);
+    }
+
+    function getWordPool() {
+      if (stage === 1) {
+        return easyWords;
+      } else if (stage === 2) {
+        return [...easyWords, ...threeLetterWords];
+      } else {
+        return [...easyWords, ...threeLetterWords, ...fourLetterWords];
+      }
+    }
+
+    function startStage() {
+      activeStageWords = [];
+      lastTimestamp = 0;
+      stageActive = false;
+      document.getElementById('floatingArea').innerHTML = "";
+      document.getElementById('floatingInput').value = "";
+      let numberOfWords = stage + 1;
+      let fallingSpeed = baseSpeed + 0.5 * (stage - 1) * speedIncrement;
+      showStageMessage(`مرحلة ${stage} تبدأ: ${numberOfWords} كلمة - سرعة: ${fallingSpeed} بكسل/ثانية`);
+      setTimeout(() => {
+        generateStageWords(numberOfWords);
+        stageActive = true;
+        requestAnimationFrame(stageAnimationLoop);
+      }, 2000);
+    }
+
+    function generateStageWords(num) {
+      let floatingArea = document.getElementById('floatingArea');
+      let count = 0;
+      function generateNext() {
+        if (count < num) {
+          let pool = getWordPool();
+          let availablePool = pool.filter(word => !usedWords.includes(word));
+          if (availablePool.length === 0) {
+            usedWords = [];
+            availablePool = pool;
+          }
+          let word = availablePool[Math.floor(Math.random() * availablePool.length)];
+          usedWords.push(word);
+          let wordElem = document.createElement('span');
+          wordElem.className = "floating-word";
+          wordElem.textContent = word;
+          let startX = Math.random() * (floatingArea.clientWidth - 100);
+          wordElem.style.left = startX + "px";
+          wordElem.style.top = "0px";
+          floatingArea.appendChild(wordElem);
+          activeStageWords.push({ text: word, element: wordElem, top: 0, startX: startX });
+          count++;
+          setTimeout(generateNext, 1000);
+        }
+      }
+      generateNext();
+    }
+
+    function stageAnimationLoop(timestamp) {
+      if (!lastTimestamp) {
+        lastTimestamp = timestamp;
+      }
+      let delta = (timestamp - lastTimestamp) / 1000;
+      lastTimestamp = timestamp;
+      if (!stageActive) return;
+      let fallingSpeed = baseSpeed + (stage - 1) * speedIncrement;
+      let floatingArea = document.getElementById('floatingArea');
+      let areaHeight = floatingArea.clientHeight;
+      for (let i = activeStageWords.length - 1; i >= 0; i--) {
+        let wordObj = activeStageWords[i];
+        wordObj.top += fallingSpeed * delta;
+        let waveOffset = Math.sin(wordObj.top / 50) * 20;
+        wordObj.element.style.top = wordObj.top + "px";
+        wordObj.element.style.left = (wordObj.startX + waveOffset) + "px";
+        if (wordObj.top + wordObj.element.offsetHeight >= areaHeight) {
+          floatingArea.removeChild(wordObj.element);
+          activeStageWords.splice(i, 1);
+          mistakes++;
+          updateLifeBar();
+          if (mistakes >= allowedMistakes) {
+            gameOverRace();
+            return;
+          }
+        }
+      }
+      if (activeStageWords.length === 0) {
+        stage++;
+        setTimeout(startStage, 1000);
+        return;
+      }
+      stageAnimationFrameId = requestAnimationFrame(stageAnimationLoop);
+    }
+
+    document.getElementById('floatingInput').addEventListener('input', function() {
+      let inputValue = this.value.trim();
+      if (inputValue === "") return;
+      activeStageWords.forEach((wordObj) => {
+        if (wordObj.text.startsWith(inputValue)) {
+          let prefix = wordObj.text.substring(0, inputValue.length);
+          let rest = wordObj.text.substring(inputValue.length);
+          wordObj.element.innerHTML = `<span style="color: blue;">${prefix}</span>${rest}`;
+          if (wordObj.text === inputValue) {
+            let floatingArea = document.getElementById('floatingArea');
+            if (floatingArea.contains(wordObj.element)) {
+              floatingArea.removeChild(wordObj.element);
+            }
+            activeStageWords = activeStageWords.filter(obj => obj !== wordObj);
+            document.getElementById('floatingInput').value = "";
+            let progress = (stage + 1 - activeStageWords.length) / (stage + 1) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+          }
+        } else {
+          wordObj.element.innerHTML = wordObj.text;
+        }
+      });
+    });
+
+    function gameOverRace() {
+      stageActive = false;
+      cancelAnimationFrame(stageAnimationFrameId);
+      document.getElementById('resultRaceStage').innerText = `لقد وصلت إلى المرحلة ${stage}`;
+      document.getElementById('resultRaceMistakes').innerText = `عدد الأخطاء: ${mistakes}`;
+      document.getElementById('resultPanelRace').classList.add('show');
+    }
+
+    function restartFloatingMode() {
+      document.getElementById('resultPanelRace').classList.remove('show');
+      stage = 1;
+      mistakes = 0;
+      usedWords = [];
+      activeStageWords = [];
+      stageActive = false;
+      lastTimestamp = 0;
+      updateLifeBar();
+      startStage();
+      document.getElementById('floatingInput').focus();
+    }
+  </script>
+</body>
+</html>
