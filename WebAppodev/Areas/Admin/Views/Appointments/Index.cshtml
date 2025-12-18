@@ -1,0 +1,60 @@
+﻿@model IEnumerable<WebAppodev.Models.Appointment>
+
+@{
+    ViewData["Title"] = "Appointment Requests";
+}
+
+<div class="container-fluid">
+    <h2 class="mt-4">Manage Appointments</h2>
+
+    <table class="table table-bordered table-striped mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Date</th>
+                <th>Member Email</th>
+                <th>Trainer</th>
+                <th>Service</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Date.ToString("g")</td>
+                    <td>@item.Member?.Email</td>
+                    <td>@item.Trainer?.FullName</td>
+                    <td>@item.Service?.Name</td>
+                    <td>
+                        @if (item.Status == "Pending")
+                        {
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        }
+                        else if (item.Status == "Confirmed")
+                        {
+                            <span class="badge bg-success">Confirmed</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Cancelled</span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.Status == "Pending")
+                        {
+                            <div class="d-flex gap-2">
+                                <form asp-action="Approve" asp-route-id="@item.Id" method="post">
+                                    <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                </form>
+                                <form asp-action="Cancel" asp-route-id="@item.Id" method="post">
+                                    <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                </form>
+                            </div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

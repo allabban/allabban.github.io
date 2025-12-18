@@ -2,16 +2,16 @@
 
 namespace WebAppodev.Models
 {
-	public class Trainer
-	{
-		public int Id { get; set; }
+    public class Trainer
+    {
+        public int Id { get; set; }
 
-		[Required]
-		public string FullName { get; set; }
+        [Required]
+        public string FullName { get; set; }
 
-		[Required]
-		public string Specialty { get; set;} // [cite: 16]
+        [Required]
+        public string Specialty { get; set; }
 
-		public int ExperienceYears { get; set; }
-	}
+        public int ExperienceYears { get; set; }
+    }
 }
