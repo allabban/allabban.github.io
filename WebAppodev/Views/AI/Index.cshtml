@@ -1,0 +1,48 @@
+﻿@model WebAppodev.Models.UserProfile
+
+@{
+    ViewData["Title"] = "AI Fitness Planner";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-info text-white">
+            <h3>🤖 AI Workout Generator</h3>
+        </div>
+        <div class="card-body">
+            <p>Enter your details, and our AI will generate a custom plan for you.</p>
+            <form asp-action="GeneratePlan" method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Age" class="form-label"></label>
+                        <input asp-for="Age" class="form-control" type="number" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Height" class="form-label"></label>
+                        <input asp-for="Height" class="form-control" placeholder="cm" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Weight" class="form-label"></label>
+                        <input asp-for="Weight" class="form-control" placeholder="kg" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Goal" class="form-label">Primary Goal</label>
+                    <select asp-for="Goal" class="form-select">
+                        <option value="Lose Weight">Lose Weight</option>
+                        <option value="Build Muscle">Build Muscle</option>
+                        <option value="Improve Flexibility">Improve Flexibility</option>
+                    </select>
+                </div>
+                <div  class="mb-3">
+                    <label asp-for="ImageUpload" class="form-label">Upload Photo for Analysis</label>
+                    <input disabled asp-for="ImageUpload" class="form-control" type="file" accept="image/*" />
+                    <div class="form-text">Upload a photo to let AI analyze your body type.</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">✨ Generate Plan with AI</button>
+            </form>
+        </div>
+    </div>
+</div>

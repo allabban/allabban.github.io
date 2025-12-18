@@ -1,0 +1,53 @@
+﻿@model IEnumerable<WebAppodev.Models.Appointment>
+
+@{
+    ViewData["Title"] = "My Appointments";
+}
+
+<div class="container mt-4">
+    <h2>My Appointments</h2>
+    <hr />
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            You haven't booked any sessions yet.
+            <a asp-action="Create" class="alert-link">Book one now!</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 mb-3">
+                    <div class="card shadow-sm border-start border-4
+                                 @(item.Status == "Confirmed" ? "border-success" :
+                                                    item.Status == "Cancelled" ? "border-danger" : "border-warning")">
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Service?.Name</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">with @item.Trainer?.FullName</h6>
+
+                            <p class="card-text">
+                                <strong>Date:</strong> @item.Date.ToString("f") <br />
+                                <strong>Status:</strong>
+                                @if (item.Status == "Confirmed")
+                                {
+                                    <span class="badge bg-success">Confirmed</span>
+                                }
+                                else if (item.Status == "Cancelled")
+                                {
+                                    <span class="badge bg-danger">Cancelled</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Pending Approval</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

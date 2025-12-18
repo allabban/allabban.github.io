@@ -1,0 +1,22 @@
+﻿@model WebAppodev.Models.UserProfile
+
+@{
+    ViewData["Title"] = "Your Plan";
+}
+
+<div class="container mt-5">
+    <div class="alert alert-success">
+        <h4 class="alert-heading">Plan Ready!</h4>
+        <p>Based on your goal to <strong>@Model.Goal</strong>, here is your custom schedule:</p>
+    </div>
+
+    <div class="card border-info">
+        <div class="card-body bg-light">
+            <pre style="white-space: pre-wrap; font-family: sans-serif;">@Model.AIResponse</pre>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Index" class="btn btn-secondary">Try Again</a>
+    </div>
+</div>

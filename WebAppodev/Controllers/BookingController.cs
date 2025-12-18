@@ -68,5 +68,25 @@ namespace WebAppodev.Controllers
 			ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name", appointment.ServiceId); // Ensure "Name" matches your Service model property
 			return View(appointment);
 		}
+		// GET: Booking/MyAppointments
+		public async Task<IActionResult> MyAppointments()
+		{
+			// 1. Get the current logged-in user
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null)
+			{
+				return RedirectToAction("Login", "Account");
+			}
+
+			// 2. Fetch appointments ONLY for this user
+			var myAppointments = await _context.Appointments
+				.Include(a => a.Trainer)  // Join with Trainer table
+				.Include(a => a.Service)  // Join with Service table
+				.Where(a => a.MemberId == user.Id) // Filter by User ID
+				.OrderByDescending(a => a.Date)    // Newest first
+				.ToListAsync();
+
+			return View(myAppointments);
+		}
 	}
 }
