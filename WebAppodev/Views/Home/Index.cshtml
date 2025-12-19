@@ -3,6 +3,28 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Welcome to FitLife</h1>
+    <p>Your journey to fitness starts here.</p>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                Most Popular Trainers (LINQ Stats)
+            </div>
+            <ul class="list-group list-group-flush">
+                @if (ViewBag.TopTrainers != null)
+                {
+                    foreach (var trainer in ViewBag.TopTrainers)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            @trainer.Name
+                            <span class="badge bg-primary rounded-pill">@trainer.Count sessions</span>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
 </div>
