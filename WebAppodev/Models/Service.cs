@@ -7,16 +7,18 @@ namespace WebAppodev.Models
 		public int Id { get; set; }
 
 		[Required]
-		[Display(Name = "Hizmet Adı")]
-		public string Name { get; set; } // e.g., "Personal Training", "Yoga Class"
+		public string Name { get; set; }
 
-		[Display(Name = "Süre (Dakika)")]
-		public int DurationMinutes { get; set; } // e.g., 60
+		[Required]
+		public string Description { get; set; }
 
-		[Display(Name = "Ücret")]
+		// Fixes "Service does not contain definition for Duration"
+		[Range(15, 240)]
+		[Display(Name = "Duration (Minutes)")]
+		public int Duration { get; set; } = 60;
+
+		// Fixes "Service does not contain definition for Price"
+		[Range(0, 10000)]
 		public decimal Price { get; set; }
-
-		// Optional: Link to specific trainers if not all trainers do all services
-		// public ICollection<Trainer> Trainers { get; set; } 
 	}
 }

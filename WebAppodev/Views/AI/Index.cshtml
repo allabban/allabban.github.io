@@ -1,10 +1,16 @@
 ﻿@model WebAppodev.Models.UserProfile
-
 @{
     ViewData["Title"] = "AI Fitness Planner";
 }
 
 <div class="container mt-5">
+
+    <div class="d-flex justify-content-end mb-3">
+        <a asp-action="ImageGenerator" class="btn btn-warning shadow-sm">
+            🎨 Switch to AI Body Visualizer
+        </a>
+    </div>
+
     <div class="card shadow-lg">
         <div class="card-header bg-info text-white">
             <h3>🤖 AI Workout Generator</h3>
@@ -34,11 +40,6 @@
                         <option value="Build Muscle">Build Muscle</option>
                         <option value="Improve Flexibility">Improve Flexibility</option>
                     </select>
-                </div>
-                <div  class="mb-3">
-                    <label asp-for="ImageUpload" class="form-label">Upload Photo for Analysis</label>
-                    <input disabled asp-for="ImageUpload" class="form-control" type="file" accept="image/*" />
-                    <div class="form-text">Upload a photo to let AI analyze your body type.</div>
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100">✨ Generate Plan with AI</button>

@@ -8,7 +8,7 @@ using WebAppodev.Models;
 
 namespace WebAppodev.Controllers
 {
-	[Authorize] // Only logged-in members can book
+	[Authorize]
 	public class BookingController : Controller
 	{
 		private readonly ApplicationDbContext _context;
@@ -20,73 +20,133 @@ namespace WebAppodev.Controllers
 			_userManager = userManager;
 		}
 
-		// GET: Show the booking form
+		// GET: Booking/MyAppointments
+		// Shows the list of user's bookings with grayed out past items
+		public async Task<IActionResult> MyAppointments()
+		{
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null) return RedirectToAction("Login", "Account");
+
+			var myAppointments = await _context.Appointments
+				.Include(a => a.Trainer)
+				.Include(a => a.Service)
+				.Where(a => a.MemberId == user.Id)
+				.OrderByDescending(a => a.Date)
+				.ToListAsync();
+
+			return View(myAppointments);
+		}
+
+		// GET: Booking/Create
 		public IActionResult Create()
 		{
-			// Send lists to the View for Dropdowns
 			ViewData["TrainerId"] = new SelectList(_context.Trainers, "Id", "FullName");
 			ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name");
 			return View();
 		}
 
-		// POST: Process the booking
+		// POST: Booking/Create
+		// Handles overlap logic using Duration
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create([Bind("Date,TrainerId,ServiceId")] Appointment appointment)
 		{
-			// --- FIX START: Remove validation for fields we handle automatically ---
 			ModelState.Remove("MemberId");
 			ModelState.Remove("Member");
 			ModelState.Remove("Trainer");
 			ModelState.Remove("Service");
-			// --- FIX END ---
 
-			// 1. Set the Member ID automatically (Logged in user)
 			var user = await _userManager.GetUserAsync(User);
+			if (user == null) return RedirectToAction("Login", "Account");
+
 			appointment.MemberId = user.Id;
 			appointment.Status = "Pending";
 
-			// 2. Check for Conflicts
-			bool isBusy = _context.Appointments.Any(a =>
-				a.TrainerId == appointment.TrainerId &&
-				a.Date == appointment.Date);
+			// 1. GET DURATION
+			// We need to know how long the service takes to calculate the End Time
+			var selectedService = await _context.Services.FindAsync(appointment.ServiceId);
 
-			if (isBusy)
+			// If service wasn't found (shouldn't happen), reload page
+			if (selectedService == null)
 			{
-				ModelState.AddModelError("", "This trainer is already booked at that time.");
+				ViewData["TrainerId"] = new SelectList(_context.Trainers, "Id", "FullName", appointment.TrainerId);
+				ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name", appointment.ServiceId);
+				return View(appointment);
+			}
+
+			// Calculate New Appointment Times
+			DateTime newStart = appointment.Date;
+			DateTime newEnd = appointment.Date.AddMinutes(selectedService.Duration);
+
+			// 2. CHECK FOR CONFLICTS
+			// We pull existing appointments for this Trainer OR this User
+			var conflicts = await _context.Appointments
+				.Include(a => a.Service) // Need to include Service to know THEIR duration
+				.Where(a =>
+					(a.TrainerId == appointment.TrainerId || a.MemberId == user.Id)
+					&& a.Status != "Cancelled"
+					&& a.Status != "Rejected")
+				.ToListAsync();
+
+			bool isConflict = false;
+
+			foreach (var existing in conflicts)
+			{
+				// Calculate Existing Appointment Times
+				// If existing.Service is null (legacy data), assume 60 mins
+				int existingDuration = existing.Service != null ? existing.Service.Duration : 60;
+
+				DateTime existingStart = existing.Date;
+				DateTime existingEnd = existing.Date.AddMinutes(existingDuration);
+
+				// LOGIC: Overlap exists if (StartA < EndB) AND (EndA > StartB)
+				if (existingStart < newEnd && existingEnd > newStart)
+				{
+					isConflict = true;
+					break;
+				}
+			}
+
+			if (isConflict)
+			{
+				ModelState.AddModelError("", $"Time Conflict! The trainer or you are busy during this time ({selectedService.Duration} mins).");
 			}
 
 			if (ModelState.IsValid)
 			{
 				_context.Add(appointment);
 				await _context.SaveChangesAsync();
-				return RedirectToAction("Index", "Home");
+				return RedirectToAction(nameof(MyAppointments));
 			}
 
-			// If we got here, something failed. Reload the lists so the form isn't empty.
+			// If we failed, reload the dropdowns
 			ViewData["TrainerId"] = new SelectList(_context.Trainers, "Id", "FullName", appointment.TrainerId);
-			ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name", appointment.ServiceId); // Ensure "Name" matches your Service model property
+			ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name", appointment.ServiceId);
 			return View(appointment);
 		}
-		// GET: Booking/MyAppointments
-		public async Task<IActionResult> MyAppointments()
+
+		// POST: Booking/Delete/5
+		// Allows user to delete Rejected or Cancelled appointments
+		[HttpPost, ActionName("Delete")]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> DeleteConfirmed(int id)
 		{
-			// 1. Get the current logged-in user
-			var user = await _userManager.GetUserAsync(User);
-			if (user == null)
+			var appointment = await _context.Appointments.FindAsync(id);
+			if (appointment != null)
 			{
-				return RedirectToAction("Login", "Account");
+				// Security check: ensure the user owns this appointment
+				var user = await _userManager.GetUserAsync(User);
+				if (appointment.MemberId == user.Id)
+				{
+					// Logic check: only delete if it's "over"
+					if (appointment.Status == "Rejected" || appointment.Status == "Cancelled")
+					{
+						_context.Appointments.Remove(appointment);
+						await _context.SaveChangesAsync();
+					}
+				}
 			}
-
-			// 2. Fetch appointments ONLY for this user
-			var myAppointments = await _context.Appointments
-				.Include(a => a.Trainer)  // Join with Trainer table
-				.Include(a => a.Service)  // Join with Service table
-				.Where(a => a.MemberId == user.Id) // Filter by User ID
-				.OrderByDescending(a => a.Date)    // Newest first
-				.ToListAsync();
-
-			return View(myAppointments);
+			return RedirectToAction(nameof(MyAppointments));
 		}
 	}
 }

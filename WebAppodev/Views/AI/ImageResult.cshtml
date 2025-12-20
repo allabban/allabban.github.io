@@ -1,0 +1,31 @@
+﻿@model WebAppodev.Models.UserProfile
+@{
+    ViewData["Title"] = "Transformation Result";
+}
+
+<div class="container mt-5 text-center">
+    <h2>✨ Your AI Transformation</h2>
+    <hr />
+
+    @if (!string.IsNullOrEmpty(Model.GeneratedImageBase64))
+    {
+        <div class="card shadow-lg d-inline-block">
+            <div class="card-body p-2">
+                <img src="data:image/png;base64,@Model.GeneratedImageBase64"
+                     class="img-fluid rounded"
+                     style="max-height: 600px;"
+                     alt="AI Generated Result" />
+            </div>
+        </div>
+        <div class="mt-4">
+            <a asp-action="ImageGenerator" class="btn btn-outline-primary">Try Another Photo</a>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            Image generation failed. Please check your API key or try a different photo.
+        </div>
+        <a asp-action="ImageGenerator" class="btn btn-secondary">Go Back</a>
+    }
+</div>

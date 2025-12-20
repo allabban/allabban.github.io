@@ -1,53 +1,41 @@
 ﻿@model IEnumerable<WebAppodev.Models.Appointment>
 
-@{
-    ViewData["Title"] = "My Appointments";
-}
-
 <div class="container mt-4">
     <h2>My Appointments</h2>
-    <hr />
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            // Check if date has passed
+            bool isPast = item.Date < DateTime.Now;
+            string cardClass = isPast ? "bg-light text-muted grayscale" : "border-primary";
 
-    @if (!Model.Any())
-    {
-        <div class="alert alert-info">
-            You haven't booked any sessions yet.
-            <a asp-action="Create" class="alert-link">Book one now!</a>
-        </div>
-    }
-    else
-    {
-        <div class="row">
-            @foreach (var item in Model)
-            {
-                <div class="col-md-6 mb-3">
-                    <div class="card shadow-sm border-start border-4
-                                 @(item.Status == "Confirmed" ? "border-success" :
-                                                    item.Status == "Cancelled" ? "border-danger" : "border-warning")">
-                        <div class="card-body">
-                            <h5 class="card-title">@item.Service?.Name</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">with @item.Trainer?.FullName</h6>
+            <div class="col-md-6 mb-3">
+                <div class="card shadow-sm @cardClass">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Service.Name</h5>
+                        <p class="card-text">
+                            <strong>Date:</strong> @item.Date.ToString("g") <br />
+                            <strong>Status:</strong> @item.Status
+                        </p>
 
-                            <p class="card-text">
-                                <strong>Date:</strong> @item.Date.ToString("f") <br />
-                                <strong>Status:</strong>
-                                @if (item.Status == "Confirmed")
-                                {
-                                    <span class="badge bg-success">Confirmed</span>
-                                }
-                                else if (item.Status == "Cancelled")
-                                {
-                                    <span class="badge bg-danger">Cancelled</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning text-dark">Pending Approval</span>
-                                }
-                            </p>
-                        </div>
+                        @if (item.Status == "Rejected" || item.Status == "Cancelled")
+                        {
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                        }
                     </div>
                 </div>
-            }
-        </div>
-    }
+            </div>
+        }
+    </div>
 </div>
+
+<style>
+    .grayscale {
+        opacity: 0.6;
+        filter: grayscale(100%);
+    }
+</style>
