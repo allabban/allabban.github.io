@@ -1,38 +1,229 @@
 ﻿@model IEnumerable<WebAppodev.Models.Appointment>
 
-<div class="container mt-4">
-    <h2>Manage Appointments</h2>
-    <div class="row">
-        @foreach (var item in Model)
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-sm border-start border-4 @(item.Status == "Pending" ? "border-warning" : "border-success")">
-                    <div class="card-body">
-                        <h5 class="card-title">@item.Member.UserName</h5> <h6 class="text-muted">@item.Service.Name with @item.Trainer.FullName</h6>
-                        <hr />
-                        <p>
-                            📅 @item.Date.ToString("g") <br />
-                            ⏱️ @item.Service.Duration mins
-                        </p>
+@{
+    ViewData["Title"] = "Manage Appointments";
+}
 
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="badge @(item.Status == "Pending" ? "bg-warning" : "bg-success")">@item.Status</span>
-
-                            @if (item.Status == "Pending")
-                            {
-                                <div>
-                                    <form asp-action="Approve" asp-route-id="@item.Id" style="display:inline;">
-                                        <button class="btn btn-sm btn-success">✔</button>
-                                    </form>
-                                    <form asp-action="Cancel" asp-route-id="@item.Id" style="display:inline;">
-                                        <button class="btn btn-sm btn-danger">✖</button>
-                                    </form>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
+<div class="admin-container">
+    <div class="header-box">
+        <h2>Manage Appointments</h2>
+        <p class="text-muted">Approve, Cancel, or clean up past records.</p>
     </div>
+
+    <style>
+        .fixed-home-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            border-radius: 50px;
+            padding: 12px 25px;
+        }
+        .admin-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .header-box {
+            margin-bottom: 25px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        /* Table Styling */
+        .admin-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+            .admin-table th {
+                background-color: #f8f9fa;
+                color: #495057;
+                font-weight: 600;
+                text-align: left;
+                padding: 12px 15px;
+                border-bottom: 2px solid #dee2e6;
+            }
+
+            .admin-table td {
+                padding: 12px 15px;
+                vertical-align: middle;
+                border-bottom: 1px solid #dee2e6;
+                color: #333;
+            }
+
+            .admin-table tr:hover {
+                background-color: #fcfcfc;
+            }
+
+        /* Past Item Styling (Dimmed) */
+        .row-past {
+            background-color: #f9f9f9;
+            opacity: 0.7;
+        }
+
+            .row-past td {
+                color: #888;
+            }
+
+        /* Status Badges */
+        .badge-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .st-Pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .st-Confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .st-Cancelled {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        /* Action Buttons */
+        .action-form {
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .btn-action {
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+
+        .btn-approve {
+            background-color: #28a745;
+            color: white;
+        }
+
+            .btn-approve:hover {
+                background-color: #218838;
+            }
+
+        .btn-cancel {
+            background-color: #dc3545;
+            color: white;
+        }
+
+            .btn-cancel:hover {
+                background-color: #c82333;
+            }
+
+        .btn-delete {
+            background-color: #6c757d;
+            color: white;
+        }
+
+            .btn-delete:hover {
+                background-color: #5a6268;
+            }
+
+    </style>
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Date & Time</th>
+                <th>Member</th>
+                <th>Trainer</th>
+                <th>Service</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                // Check if appointment is in the past
+                bool isPast = item.Date < DateTime.Now;
+                string rowClass = isPast ? "row-past" : "";
+
+                <tr class="@rowClass">
+                    <td>
+                        <strong>@item.Date.ToString("MMM dd")</strong><br />
+                        <span style="font-size:0.85em">@item.Date.ToString("HH:mm")</span>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Member.UserName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Trainer.FullName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Service.Name)
+                    </td>
+                    <td>
+                        <span class="badge-status st-@item.Status">
+                            @item.Status
+                        </span>
+                        @if (isPast)
+                        {
+                            <small style="display:block; margin-top:2px;">(Done)</small>
+                        }
+                    </td>
+                    <td>
+                        @if (!isPast)
+                        {
+                            // FUTURE ACTIONS: Approve / Cancel
+                            if (item.Status == "Pending")
+                            {
+                                <form asp-action="Approve" asp-route-id="@item.Id" method="post" class="action-form">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-action btn-approve">Approve</button>
+                                </form>
+                            }
+
+                            if (item.Status != "Cancelled")
+                            {
+                                <form asp-action="Cancel" asp-route-id="@item.Id" method="post" class="action-form">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-action btn-cancel">Cancel</button>
+                                </form>
+                            }
+                        }
+                        else
+                        {
+                            // PAST ACTIONS: Delete Only
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="action-form" onsubmit="return confirm('Permanently delete this past record?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-action btn-delete">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    
+
+    <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-dark fixed-home-btn">
+        Back to Home
+    </a>
+
+    @if (!Model.Any())
+    {
+        <div style="padding:20px; text-align:center; color:#777;">
+            No appointments found.
+        </div>
+    }
 </div>

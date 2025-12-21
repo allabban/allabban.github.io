@@ -18,29 +18,36 @@ namespace WebAppodev.Controllers
 			_logger = logger;
 			_context = context;
 		}
-
-		public IActionResult Index()
+		public IActionResult Index(string sortOrder)
 		{
-			// --- LINQ REQUIREMENT IMPLEMENTATION ---
-			// Calculate "Top Trainers" stats for the homepage
-
-			var topTrainers = _context.Appointments
-				.Include(a => a.Trainer)           // Join with Trainers table
-				.GroupBy(a => a.Trainer.FullName)  // Group by Trainer Name
+			// 1. Base Query: Calculate counts for everyone
+			var trainerStats = _context.Appointments
+				.Include(a => a.Trainer)
+				.GroupBy(a => a.Trainer.FullName)
 				.Select(g => new
 				{
 					Name = g.Key,
 					Count = g.Count()
-				})
-				.OrderByDescending(x => x.Count)   // Sort by most popular
-				.Take(3)                           // Get top 3
-				.ToList();
+				});
 
-			// Pass data to View
-			ViewBag.TopTrainers = topTrainers;
+			// 2. Apply Sorting Logic based on the button clicked
+			if (sortOrder == "Name")
+			{
+				// Sort A-Z (Show all, or you can add .Take(5) if the list is too long)
+				ViewBag.TopTrainers = trainerStats.OrderBy(x => x.Name).ToList();
+				ViewBag.HeaderTitle = "Trainers (A-Z)";
+			}
+			else
+			{
+				// Default: Top 3 Popular
+				ViewBag.TopTrainers = trainerStats.OrderByDescending(x => x.Count).Take(3).ToList();
+				ViewBag.HeaderTitle = "Most Popular Trainers";
+			}
 
 			return View();
 		}
+
+		
 
 		public IActionResult Privacy()
 		{

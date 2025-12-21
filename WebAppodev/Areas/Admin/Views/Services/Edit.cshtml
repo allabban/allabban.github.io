@@ -1,44 +1,77 @@
 ﻿@model WebAppodev.Models.Service
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Service";
 }
 
-<h1>Edit</h1>
+<style>
+    .form-card {
+        background-color: white;
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
 
-<h4>Service</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Duration" class="control-label"></label>
-                <input asp-for="Duration" class="form-control" />
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .btn-save {
+        width: 100%;
+        padding: 10px;
+        font-weight: bold;
+    }
+</style>
+
+<div class="form-card">
+    <div style="text-align:center; margin-bottom:25px;">
+        <h2 style="color:#333;">Edit Service</h2>
+        <p class="text-muted">Update service information</p>
+    </div>
+
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+
+        <div class="form-group">
+            <label asp-for="Name" class="control-label fw-bold"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label asp-for="Duration" class="control-label fw-bold"></label>
+                <div class="input-group">
+                    <input asp-for="Duration" class="form-control" />
+                    <span class="input-group-text">mins</span>
+                </div>
                 <span asp-validation-for="Duration" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
+            <div class="col-md-6 form-group">
+                <label asp-for="Price" class="control-label fw-bold"></label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input asp-for="Price" class="form-control" />
+                </div>
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+        </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+        <div class="form-group" style="margin-top:20px;">
+            <input type="submit" value="Save Changes" class="btn btn-primary btn-save" />
+        </div>
+
+        <div style="text-align:center; margin-top:15px;">
+            <a asp-action="Index" class="text-decoration-none text-secondary">Cancel</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

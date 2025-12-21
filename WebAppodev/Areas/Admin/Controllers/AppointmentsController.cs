@@ -44,6 +44,28 @@ namespace WebAppodev.Areas.Admin.Controllers
 			}
 			return RedirectToAction(nameof(Index));
 		}
+		// POST: Admin/Appointments/Delete/5
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Delete(int id)
+		{
+			var appointment = await _context.Appointments.FindAsync(id);
+
+			if (appointment != null)
+			{
+				if (appointment.Date < DateTime.Now)
+				{
+					_context.Appointments.Remove(appointment);
+					await _context.SaveChangesAsync();
+				}
+				else
+				{
+					_context.Appointments.Remove(appointment);
+					await _context.SaveChangesAsync();
+				}
+			}
+			return RedirectToAction(nameof(Index));
+		}
 
 		// POST: Cancel Appointment
 		[HttpPost]

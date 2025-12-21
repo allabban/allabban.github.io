@@ -1,0 +1,82 @@
+﻿@{
+    ViewData["Title"] = "AI Image Generator";
+}
+
+<style>
+    .generator-card {
+        background-color: white;
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+
+    .prompt-input {
+        border: 2px solid #e9ecef;
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        transition: border-color 0.3s;
+    }
+
+        .prompt-input:focus {
+            border-color: #6f42c1; /* Purple focus color */
+            box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+        }
+
+    .btn-generate {
+        background: linear-gradient(135deg, #6f42c1 0%, #593196 100%);
+        border: none;
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+        border-radius: 50px;
+        transition: transform 0.2s;
+    }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(111, 66, 193, 0.4);
+        }
+</style>
+
+<div class="generator-card">
+    <div class="mb-4">
+        <i class="bi bi-stars" style="font-size: 3rem; color: #6f42c1;"></i>
+        <h2 class="mt-2 fw-bold" style="color: #333;">Create Art with AI</h2>
+        <p class="text-muted">Powered by Stability AI (SDXL 1.0)</p>
+    </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger text-start">
+            <i class="bi bi-exclamation-triangle-fill"></i> @ViewBag.Error
+        </div>
+    }
+
+    <form asp-action="Generate" method="post">
+        <div class="form-group text-start">
+            <label for="prompt" class="fw-bold mb-2 text-secondary">Describe your imagination:</label>
+            <textarea name="prompt" id="prompt" rows="3" class="form-control prompt-input"
+                      placeholder="e.g. A futuristic city made of crystal, golden sunset lighting, cinematic 4k..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-generate mt-2">
+            <i class="bi bi-magic"></i> Generate Image
+        </button>
+    </form>
+
+    <div class="mt-4 pt-3 border-top text-muted" style="font-size: 0.9rem;">
+        <i class="bi bi-info-circle"></i> Generation usually takes 5-10 seconds.
+    </div>
+</div>
+
+<div class="text-center mb-5">
+    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Back to Home
+    </a>
+</div>

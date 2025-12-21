@@ -1,36 +1,80 @@
 ﻿@model WebAppodev.Models.Trainer
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Trainer Details";
 }
 
-<h1>Details</h1>
+<style>
+    .details-card {
+        background-color: white;
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
 
-<div>
-    <h4>Trainer</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FullName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FullName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Specialty)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Specialty)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ExperienceYears)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ExperienceYears)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    .detail-row {
+        border-bottom: 1px solid #f0f0f0;
+        padding: 15px 0;
+        display: flex;
+        justify-content: space-between;
+    }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+    .detail-label {
+        font-weight: bold;
+        color: #555;
+    }
+
+    .detail-value {
+        color: #222;
+        font-weight: 500;
+        text-align: right;
+    }
+
+    .action-buttons {
+        margin-top: 30px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+</style>
+
+<div class="details-card">
+    <div style="text-align:center; margin-bottom:30px;">
+        <h2 style="color:#2c3e50;">Trainer Profile</h2>
+        <p class="text-muted">Viewing details for @Model.FullName</p>
+    </div>
+
+    <div class="detail-content">
+        <div class="detail-row">
+            <span class="detail-label">@Html.DisplayNameFor(model => model.FullName)</span>
+            <span class="detail-value">@Html.DisplayFor(model => model.FullName)</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-label">@Html.DisplayNameFor(model => model.Specialty)</span>
+            <span class="detail-value">
+                <span class="badge bg-info text-dark">@Html.DisplayFor(model => model.Specialty)</span>
+            </span>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-label">@Html.DisplayNameFor(model => model.ExperienceYears)</span>
+            <span class="detail-value">@Html.DisplayFor(model => model.ExperienceYears) Years</span>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning" style="width:120px;">
+            Edit
+        </a>
+        <a asp-action="Index" class="btn btn-secondary" style="width:120px;">
+            Back
+        </a>
+    </div>
 </div>

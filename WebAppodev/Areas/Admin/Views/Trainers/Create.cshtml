@@ -1,43 +1,74 @@
 ﻿@model WebAppodev.Models.Trainer
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Trainer";
 }
 
-<h1>Create</h1>
+<style>
+    .form-card {
+        background-color: white;
+        max-width: 600px;
+        margin: 20px auto; /* Centers the box */
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
 
-<h4>Trainer</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-area="Admin" asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="FullName" class="control-label"></label>
-                <input asp-for="FullName" class="form-control" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Specialty" class="control-label"></label>
-                <input asp-for="Specialty" class="form-control" />
-                <span asp-validation-for="Specialty" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ExperienceYears" class="control-label"></label>
-                <input asp-for="ExperienceYears" class="form-control" />
-                <span asp-validation-for="ExperienceYears" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        border-radius: 6px;
+        padding: 10px;
+    }
+
+    .btn-create {
+        width: 100%;
+        padding: 10px;
+        font-weight: bold;
+    }
+</style>
+
+<div class="form-card">
+    <div style="text-align:center; margin-bottom:25px;">
+        <h2 style="color:#333;">Add New Trainer</h2>
+        <p class="text-muted">Enter the details of the new team member</p>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+    <form asp-area="Admin" asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="FullName" class="control-label fw-bold"></label>
+            <input asp-for="FullName" class="form-control" placeholder="e.g. John Doe" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Specialty" class="control-label fw-bold"></label>
+            <input asp-for="Specialty" class="form-control" placeholder="e.g. Yoga, HIIT, Cardio" />
+            <span asp-validation-for="Specialty" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ExperienceYears" class="control-label fw-bold"></label>
+            <input asp-for="ExperienceYears" class="form-control" placeholder="e.g. 5" />
+            <span asp-validation-for="ExperienceYears" class="text-danger"></span>
+        </div>
+
+        <div class="form-group" style="margin-top:30px;">
+            <input type="submit" value="Create Trainer" class="btn btn-primary btn-create" />
+        </div>
+
+        <div style="text-align:center; margin-top:15px;">
+            <a asp-action="Index" class="text-decoration-none text-secondary">Back to List</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
